@@ -1,0 +1,7 @@
+.idea
+.github
+build
+
+.env.test
+.DS_Store
+README.md

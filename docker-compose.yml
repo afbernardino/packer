@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  api:
+    image: 'api:${RELEASE_TAG}'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: 'postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable'
+      PORT: ${PORT}
+    ports:
+      - ${PORT}:${PORT}
+  postgres:
+    image: postgres:16.1-alpine3.19
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DATABASE_NAME}", "-U", "${DATABASE_USER}" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    environment:
+      - DATABASE_NAME=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - ./scripts/db:/docker-entrypoint-initdb.d/

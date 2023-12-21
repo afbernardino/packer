@@ -1,0 +1,177 @@
+openapi: 3.1.0
+info:
+  title: Packer
+  description: Computes the number of packs that need to be shipped to the customer given the pack sizes and the order size.
+  version: 0.1.0
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /orders:
+    post:
+      summary: Create order
+      description: Creates an order given the order size.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - size
+              properties:
+                size:
+                  type: integer
+                  description: The order size.
+            example:
+              size: 12001
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - packs
+                properties:
+                  packs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        size:
+                          type: integer
+                        quantity:
+                          type: integer
+                    description: The order, i.e. the computed packs by size and quantity.
+              example:
+                packs:
+                  - size: 5000
+                    quantity: 2
+                  - size: 2000
+                    quantity: 1
+                  - size: 250
+                    quantity: 1
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error_code
+                  - error_message
+                properties:
+                  error_code:
+                    type: string
+                    description: The error code.
+                  error_message:
+                    type: string
+                    description: The error message.
+              examples:
+                invalid_payload:
+                  value:
+                    error_code: invalid_payload
+                    error_message: Invalid payload.
+                invalid_order_size:
+                  value:
+                    error_code: invalid_order_size
+                    error_message: Order sizes must be greater than zero.
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error_code
+                  - error_message
+                properties:
+                  error_code:
+                    type: string
+                    description: The error code.
+                  error_message:
+                    type: string
+                    description: The error message.
+              example:
+                error_code: internal_sever_error
+                error_message: Internal server error.
+  /orders/config:
+    put:
+      summary: Set the orders' config
+      description: Set the orders configuration, such as pack sizes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pack_sizes
+              properties:
+                pack_sizes:
+                  type: integer
+                  description: The pack sizes.
+            example:
+              pack_sizes: [250, 500, 1000, 2000, 5000]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - pack_sizes
+                properties:
+                  pack_sizes:
+                    type: array
+                    items:
+                      type: integer
+                    description: The orders' config.
+              example:
+                pack_sizes: [250, 500, 1000, 2000, 5000]
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error_code
+                  - error_message
+                properties:
+                  error_code:
+                    type: string
+                    description: The error code.
+                  error_message:
+                    type: string
+                    description: The error message.
+              examples:
+                invalid_payload:
+                  value:
+                    error_code: invalid_payload
+                    error_message: Invalid payload.
+                invalid_pack_sizes:
+                  value:
+                    error_code: invalid_pack_sizes
+                    error_message: Pack sizes should have at least one size.
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error_code
+                  - error_message
+                properties:
+                  error_code:
+                    type: string
+                    description: The error code.
+                  error_message:
+                    type: string
+                    description: The error message.
+              example:
+                error_code: internal_sever_error
+                error_message: Internal server error.
